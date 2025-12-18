@@ -8,7 +8,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.financetracker.viewmodel.AuthState
 import com.example.financetracker.viewmodel.AuthViewModel
 
 @Composable
@@ -16,15 +15,10 @@ fun LoginScreen(
     onSignUpClick: () -> Unit,
     authViewModel: AuthViewModel
 ) {
-    val authState by authViewModel.authState.collectAsState()
-
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
-
-    val isLoading = authState is AuthState.Loading
-    val errorMessage = (authState as? AuthState.Error)?.message
 
     fun validate(): Boolean {
         var isValid = true
@@ -98,32 +92,15 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (errorMessage != null) {
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-
         Button(
             onClick = {
                 if (validate()) {
                     authViewModel.login(email, password)
                 }
             },
-            enabled = !isLoading,
             modifier = Modifier.fillMaxWidth()
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(20.dp)
-                )
-            } else {
-                Text("Login")
-            }
+            Text("Login")
         }
 
         Spacer(modifier = Modifier.height(12.dp))

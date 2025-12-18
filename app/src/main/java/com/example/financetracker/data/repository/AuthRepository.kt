@@ -7,45 +7,22 @@ import kotlinx.coroutines.tasks.await
 class AuthRepository {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
-    val currentUser: FirebaseUser?
-        get() = auth.currentUser
-
-    suspend fun signUp(
-        email: String,
-        password: String
-    ): Result<FirebaseUser> {
-        return try {
-            val result = auth
-                .createUserWithEmailAndPassword(email, password)
-                .await()
-
-            Result.success(result.user!!)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    fun getCurrentUser(): FirebaseUser? {
+        return auth.currentUser
     }
-
-    suspend fun login(
-        email: String,
-        password: String
-    ): Result<FirebaseUser> {
-        return try {
-            val result = auth
-                .signInWithEmailAndPassword(email, password)
-                .await()
-
-            Result.success(result.user!!)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun login(email: String, password: String): FirebaseUser {
+        return auth.signInWithEmailAndPassword(email, password)
+            .await()
+            .user
+            ?: throw Exception("Login failed")
     }
-
+    suspend fun signUp(email: String, password: String): FirebaseUser {
+        return auth.createUserWithEmailAndPassword(email, password)
+            .await()
+            .user
+            ?: throw Exception("Sign up failed")
+    }
     fun logout() {
         auth.signOut()
-    }
-
-    fun isUserLoggedIn(): Boolean {
-        return auth.currentUser != null
     }
 }

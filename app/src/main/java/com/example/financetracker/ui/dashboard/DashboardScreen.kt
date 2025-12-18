@@ -11,7 +11,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onTransactionsClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -25,7 +26,6 @@ fun DashboardScreen(
             )
         }
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -53,7 +53,6 @@ fun DashboardScreen(
                 }
             }
 
-            // Income & Expense Summary
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -91,7 +90,6 @@ fun DashboardScreen(
                 }
             }
 
-            // Empty State (Recent Transactions)
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -108,6 +106,12 @@ fun DashboardScreen(
                         text = "Add your first income or expense to get started.",
                         style = MaterialTheme.typography.bodyMedium
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(onClick = onTransactionsClick) {
+                        Text("View Transactions")
+                    }
                 }
             }
         }
