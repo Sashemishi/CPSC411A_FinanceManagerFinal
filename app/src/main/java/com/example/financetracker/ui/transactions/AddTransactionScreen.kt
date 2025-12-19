@@ -38,12 +38,6 @@ fun AddTransactionScreen(
     val isTitleValid = title.isNotBlank()
     val isAmountValid = amount.matches(Regex("^\\d*\\.?\\d+\$")) && (amount.toDoubleOrNull() ?: 0.0) > 0
 
-    LaunchedEffect(categories) {
-        if (selectedCategory == null && categories.isNotEmpty()) {
-            selectedCategory = categories.first()
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -68,7 +62,6 @@ fun AddTransactionScreen(
                 },
                 label = { Text("Title") },
                 modifier = Modifier.fillMaxWidth(),
-                // --- NEW: Visual error handling ---
                 isError = !isTitleValid && hasTitleBeenFocused,
                 supportingText = {
                     if (!isTitleValid && hasTitleBeenFocused) {
@@ -104,15 +97,22 @@ fun AddTransactionScreen(
                         .menuAnchor()
                         .fillMaxWidth(),
                     readOnly = true,
-                    value = selectedCategory?.name ?: "Select a category",
+                    value = selectedCategory?.name ?: "No Category",
                     onValueChange = {},
-                    label = { Text("Category") },
+                    label = { Text("Category (Optional)") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isCategoryMenuExpanded) }
                 )
                 ExposedDropdownMenu(
                     expanded = isCategoryMenuExpanded,
                     onDismissRequest = { isCategoryMenuExpanded = false }
                 ) {
+                    DropdownMenuItem(
+                        text = { Text("No Category") },
+                        onClick = {
+                            selectedCategory = null
+                            isCategoryMenuExpanded = false
+                        }
+                    )
                     if (categories.isEmpty()) {
                         DropdownMenuItem(
                             text = { Text("No categories available") },
@@ -158,13 +158,12 @@ fun AddTransactionScreen(
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = isTitleValid && isAmountValid && selectedCategory != null,
+                enabled = isTitleValid && isAmountValid,
                 onClick = {
                     val userId = FirebaseAuth.getInstance().currentUser?.uid
                     val finalAmount = amount.toDoubleOrNull()
-                    val currentCategory = selectedCategory
 
-                    if (userId == null || finalAmount == null || currentCategory == null) {
+                    if (userId == null || finalAmount == null) {
                         return@Button
                     }
 
@@ -173,7 +172,7 @@ fun AddTransactionScreen(
                         title = title,
                         amount = finalAmount,
                         type = selectedType,
-                        categoryId = currentCategory.id,
+                        categoryId = selectedCategory?.id ?: "",
                         date = System.currentTimeMillis(),
                         note = note,
                         userId = userId
