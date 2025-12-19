@@ -4,18 +4,17 @@
 
 A comprehensive expense and income tracking app that helps users manage their finances with categorization, budgeting, and spending analytics.
 
-Warning: You have to create a category before adding a transaction.
-
 ## Features
 - Create an Account and Login
 - View Balance, Total Income, and Total Expenses
 - View Recent Income/Transactions
 - Add, Edit, and Delete Categories
 - Add, Edit, and Delete Income/Transactions
+- Put Income/Transactions in Categories if desired
+- Add notes to Income/Transactions if desired
 - View Profile
 - Clear all Transactions and Categories
 - Sign Out
-
   
 # Screens:
 * Login Screen
