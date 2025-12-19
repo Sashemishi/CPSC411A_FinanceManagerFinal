@@ -2,7 +2,6 @@ package com.example.financetracker.data.repository
 
 import com.example.financetracker.data.model.Category
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

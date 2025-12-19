@@ -15,7 +15,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.financetracker.data.model.Transaction
 import com.example.financetracker.data.model.TransactionType
 import com.example.financetracker.viewmodel.TransactionViewModel
-import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

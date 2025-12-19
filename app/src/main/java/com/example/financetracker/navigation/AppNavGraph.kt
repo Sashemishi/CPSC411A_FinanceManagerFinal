@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -122,7 +123,8 @@ fun AppNavGraph(
                 )
             }
             composable(Routes.CATEGORIES) {
-                CategoriesManagementScreen()
+                CategoriesManagementScreen(
+                )
             }
             composable(Routes.ADD_TRANSACTION) {
                 AddTransactionScreen(onTransactionSaved = { navController.popBackStack() })
@@ -156,10 +158,14 @@ fun BottomNavigationBar(navController: NavController) {
                 selected = currentRoute == item.route,
                 onClick = {
                     navController.navigate(item.route) {
-                        popUpTo(navController.graph.startDestinationId) {
+                        // --- THIS IS THE CORRECTED LOGIC ---
+                        // Pop up to the start destination of the graph to avoid building up a large back stack.
+                        popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
                         }
+                        // Avoid multiple copies of the same destination when re-selecting the same item
                         launchSingleTop = true
+                        // Restore state when re-selecting a previously selected item
                         restoreState = true
                     }
                 }

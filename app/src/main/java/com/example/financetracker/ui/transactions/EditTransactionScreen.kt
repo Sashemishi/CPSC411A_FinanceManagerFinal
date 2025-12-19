@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.financetracker.data.model.Category
 import com.example.financetracker.viewmodel.TransactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
