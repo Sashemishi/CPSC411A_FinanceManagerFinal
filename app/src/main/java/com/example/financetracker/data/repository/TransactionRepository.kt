@@ -76,4 +76,22 @@ class TransactionRepository {
             .delete()
             .await()
     }
+
+    suspend fun updateCategoryForTransactions(transactionIds: List<String>, newCategoryId: String) {
+        val batch = firestore.batch()
+        transactionIds.forEach { transactionId ->
+            val docRef = transactionsCollection.document(transactionId)
+            batch.update(docRef, "categoryId", newCategoryId)
+        }
+        batch.commit().await()
+    }
+
+    suspend fun deleteTransactions(transactionIds: List<String>) {
+        val batch = firestore.batch()
+        transactionIds.forEach { transactionId ->
+            val docRef = transactionsCollection.document(transactionId)
+            batch.delete(docRef)
+        }
+        batch.commit().await()
+    }
 }

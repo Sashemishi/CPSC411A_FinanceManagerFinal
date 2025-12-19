@@ -21,11 +21,19 @@ class CategoryRepository {
                     close(error)
                     return@addSnapshotListener
                 }
+                if (snapshot == null) {
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
 
-                val categories = snapshot
-                    ?.toObjects(Category::class.java)
-                    ?: emptyList()
-
+                val categories = snapshot.documents.mapNotNull { document ->
+                    Category(
+                        id = document.getString("id") ?: "",
+                        name = document.getString("name") ?: "",
+                        color = document.getLong("color") ?: 0xFF2196F3,
+                        userId = document.getString("userId") ?: ""
+                    )
+                }
                 trySend(categories)
             }
 

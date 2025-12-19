@@ -8,9 +8,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.financetracker.data.model.Transaction
+import com.example.financetracker.data.model.TransactionType
 import com.example.financetracker.viewmodel.TransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -23,13 +26,6 @@ fun TransactionsListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) {
-            viewModel.loadTransactions(userId)
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Transactions") })
@@ -41,26 +37,35 @@ fun TransactionsListScreen(
         }
     ) { paddingValues ->
 
-        if (uiState.transactions.isEmpty()) {
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else if (uiState.transactions.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No transactions found")
+                Text("No transactions found. Tap '+' to start.")
             }
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(vertical = 16.dp)
             ) {
-                items(uiState.transactions) { transaction ->
+                items(uiState.transactions, key = { it.id }) { transaction ->
                     TransactionItem(
                         transaction = transaction,
+                        categoryName = uiState.categories.find { it.id == transaction.categoryId }?.name,
                         onClick = {
                             onEditTransactionClick(transaction.id)
                         }
@@ -74,6 +79,7 @@ fun TransactionsListScreen(
 @Composable
 private fun TransactionItem(
     transaction: Transaction,
+    categoryName: String?,
     onClick: (Transaction) -> Unit
 ) {
     Card(
@@ -81,19 +87,40 @@ private fun TransactionItem(
             .fillMaxWidth()
             .clickable { onClick(transaction) }
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = transaction.title,
-                style = MaterialTheme.typography.titleMedium
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = transaction.title,
+                    style = MaterialTheme.typography.titleMedium
+                )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = categoryName ?: "Uncategorized",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                if (transaction.note.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = transaction.note,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontStyle = FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
             Text(
-                text = "$${transaction.amount}",
-                style = MaterialTheme.typography.bodyLarge
+                text = (if (transaction.type == TransactionType.INCOME) "+$" else "-$") + "%.2f".format(transaction.amount),
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (transaction.type == TransactionType.INCOME) Color(0xFF00FF67) else Color.Red
             )
         }
     }
